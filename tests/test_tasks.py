@@ -33,7 +33,7 @@ def test_register_login_and_task_crud():
     assert data["email"] == "test@example.com"
 
     # login (OAuth2 form fields)
-    r = client.post("/auth/login", data={"username": "test@example.com", "password": "strongpass"})
+    r = client.post("/auth/login", json={"username": "test@example.com", "password": "strongpass"})
     assert r.status_code == 200
     token = r.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}

@@ -1,6 +1,6 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Body
 from sqlalchemy.orm import Session
 from . import models, schemas, crud, auth
 from .database import engine, Base, get_db
@@ -19,9 +19,9 @@ def register(user_in: schemas.UserCreate, db: Session = Depends(get_db)):
     return user
 
 @app.post("/auth/login", response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # form_data.username should be email
-    user = crud.authenticate_user(db, form_data.username, form_data.password)
+def login(credentials: schemas.Login = Body(...), db: Session = Depends(get_db)):
+    # Accept JSON body with username (email) and password to avoid multipart dependency in tests
+    user = crud.authenticate_user(db, credentials.username, credentials.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect credentials")
     token = auth.create_access_token(subject=str(user.id))
